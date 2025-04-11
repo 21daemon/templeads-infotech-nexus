@@ -6,8 +6,26 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { RefreshCw, ChevronDown, ArrowUpDown, Search } from 'lucide-react';
+import { 
+  RefreshCw, 
+  ChevronDown, 
+  ArrowUpDown, 
+  Search, 
+  Trash2, 
+  AlertTriangle 
+} from 'lucide-react';
 import ManageBookingDetails from './ManageBookingDetails';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface BookingsProps {
   bookings: any[];
@@ -19,6 +37,7 @@ const ManageBookings: React.FC<BookingsProps> = ({ bookings, onRefresh }) => {
   const [sortBy, setSortBy] = useState<string>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Filter bookings based on search term
@@ -121,6 +140,43 @@ const ManageBookings: React.FC<BookingsProps> = ({ bookings, onRefresh }) => {
     }
   };
 
+  const handleDeleteBooking = async () => {
+    if (!bookingToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .delete()
+        .eq('id', bookingToDelete);
+      
+      if (error) throw error;
+      
+      // If the deleted booking was selected, clear the selection
+      if (selectedBooking && selectedBooking.id === bookingToDelete) {
+        setSelectedBooking(null);
+      }
+      
+      // Reset the bookingToDelete state
+      setBookingToDelete(null);
+      
+      // Refresh the bookings list
+      await onRefresh();
+      
+      toast({
+        title: "Booking deleted",
+        description: "The booking has been permanently removed",
+      });
+      
+    } catch (error: any) {
+      console.error("Error deleting booking:", error);
+      toast({
+        title: "Deletion failed",
+        description: error.message || "Could not delete booking",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -155,6 +211,7 @@ const ManageBookings: React.FC<BookingsProps> = ({ bookings, onRefresh }) => {
           <ManageBookingDetails 
             booking={selectedBooking} 
             onStatusUpdate={handleUpdateStatus} 
+            onDeleteBooking={() => setBookingToDelete(selectedBooking.id)}
           />
         </div>
       ) : (
@@ -211,14 +268,48 @@ const ManageBookings: React.FC<BookingsProps> = ({ bookings, onRefresh }) => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleViewDetails(booking)}
-                      >
-                        Details
-                        <ChevronDown className="h-3 w-3 ml-1" />
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleViewDetails(booking)}
+                        >
+                          Details
+                          <ChevronDown className="h-3 w-3 ml-1" />
+                        </Button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-500 border-red-500/20 hover:bg-red-500/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="bg-luxury-800 border-white/10">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="text-white">Delete Booking</AlertDialogTitle>
+                              <AlertDialogDescription className="text-white/70">
+                                Are you sure you want to delete this booking? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel className="bg-transparent border-white/20 text-white hover:bg-white/10">Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                className="bg-red-500 text-white hover:bg-red-600"
+                                onClick={() => {
+                                  setBookingToDelete(booking.id);
+                                  handleDeleteBooking();
+                                }}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -233,6 +324,32 @@ const ManageBookings: React.FC<BookingsProps> = ({ bookings, onRefresh }) => {
           </Table>
         </div>
       )}
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!bookingToDelete} onOpenChange={(isOpen) => !isOpen && setBookingToDelete(null)}>
+        <AlertDialogContent className="bg-luxury-800 border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Delete Booking</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              Are you sure you want to delete this booking? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              className="bg-transparent border-white/20 text-white hover:bg-white/10"
+              onClick={() => setBookingToDelete(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-red-500 text-white hover:bg-red-600"
+              onClick={handleDeleteBooking}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
