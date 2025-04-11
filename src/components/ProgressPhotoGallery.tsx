@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +10,7 @@ interface ProgressUpdate {
   id: string;
   booking_id: string;
   image_url: string;
-  message: string;
+  message: string | null;
   created_at: string;
   car_details: string;
   customer_email?: string;
@@ -30,45 +29,35 @@ const ProgressPhotoGallery: React.FC<{ bookingId?: string }> = ({ bookingId }) =
       
       try {
         setIsLoading(true);
+        console.log("Fetching progress updates for bookingId:", bookingId);
         
-        // Use RPC to avoid TypeScript issues with table not defined in schema
-        let query = `
-          SELECT * FROM progress_updates
-          WHERE 1=1
-        `;
+        let query = supabase
+          .from('progress_updates')
+          .select('*')
+          .order('created_at', { ascending: false });
         
-        const queryParams: any = {};
-        
-        // Add conditional filtering
+        // If bookingId is provided, filter by it
         if (bookingId) {
-          query += ` AND booking_id = :bookingId`;
-          queryParams.bookingId = bookingId;
+          query = query.eq('booking_id', bookingId);
         } else if (user.email) {
-          query += ` AND customer_email = :customerEmail`;
-          queryParams.customerEmail = user.email;
+          // Otherwise, filter by the current user's email
+          query = query.eq('customer_email', user.email);
         }
         
-        query += ` ORDER BY created_at DESC`;
+        const { data, error } = await query;
         
-        const { data, error } = await supabase.functions.invoke('execute-sql', {
-          body: {
-            query_text: query,
-            query_params: queryParams
-          }
-        });
-        
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching progress updates:", error);
+          throw error;
+        }
         
         console.log("Progress updates response:", data);
         
-        // Handle the case where data might be null or not contain data property
-        let updates: ProgressUpdate[] = [];
-        if (data && Array.isArray(data.data)) {
-          updates = data.data as ProgressUpdate[];
-        }
-        
+        // Handle the case where data might be null
+        const updates = Array.isArray(data) ? data : [];
         setProgressUpdates(updates);
         
+        // Set the first update as active if available
         if (updates.length > 0) {
           setActivePhoto(updates[0]);
         }
@@ -85,7 +74,9 @@ const ProgressPhotoGallery: React.FC<{ bookingId?: string }> = ({ bookingId }) =
       }
     };
     
-    fetchProgressUpdates();
+    if (user) {
+      fetchProgressUpdates();
+    }
   }, [user, bookingId, toast]);
 
   // Ensure progressUpdates is always an array

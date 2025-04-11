@@ -62,30 +62,6 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
     setImagePreview(null);
   };
 
-  const createOrEnsureBucket = async () => {
-    try {
-      console.log("Ensuring storage bucket exists...");
-      const response = await supabase.functions.invoke('ensure-storage-bucket', {
-        body: {
-          bucketName: 'progress_photos',
-          isPublic: true,
-          fileSizeLimit: 5242880 // 5MB size limit
-        }
-      });
-      
-      if (response.error) {
-        console.error("Error ensuring bucket exists:", response.error);
-        throw new Error("Storage setup failed: " + response.error.message);
-      }
-      
-      console.log("Storage bucket setup successful", response);
-      return true;
-    } catch (error) {
-      console.error("Storage setup error:", error);
-      throw error;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -112,12 +88,11 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
     try {
       setIsUploading(true);
       
-      // Ensure bucket exists
-      await createOrEnsureBucket();
+      console.log("Starting file upload process...");
       
-      // Upload file
+      // Upload file to the progress_photos bucket
       const fileName = `progress_${bookingId}_${Date.now()}.${selectedImage.name.split('.').pop()}`;
-      console.log("Uploading file:", fileName);
+      console.log("Uploading file:", fileName, "to bucket: progress_photos");
       
       const { data: fileData, error: uploadError } = await supabase.storage
         .from('progress_photos')
@@ -125,7 +100,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
       
       if (uploadError) {
         console.error("File upload error:", uploadError);
-        throw uploadError;
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
       
       console.log("File uploaded successfully:", fileData);
@@ -138,7 +113,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
       console.log("Public URL generated:", publicUrl);
       
       // Store progress update in database
-      console.log("Storing progress update with data:", {
+      console.log("Inserting progress update with data:", {
         booking_id: bookingId,
         image_url: publicUrl,
         message: message,
@@ -146,55 +121,25 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
         car_details: carDetails
       });
       
-      // Try using the "insert_progress_update" function first (safer approach)
-      try {
-        // Use execute-sql edge function to insert the data directly
-        const { error: sqlError } = await supabase.functions.invoke('execute-sql', {
-          body: {
-            query_text: `
-              INSERT INTO progress_updates (booking_id, image_url, message, customer_email, car_details)
-              VALUES (:booking_id, :image_url, :message, :customer_email, :car_details)
-              RETURNING id
-            `,
-            query_params: {
-              booking_id: bookingId,
-              image_url: publicUrl,
-              message: message,
-              customer_email: emailToUse,
-              car_details: carDetails
-            }
-          }
+      // Insert directly into progress_updates table
+      const { error: insertError } = await supabase
+        .from('progress_updates')
+        .insert({
+          booking_id: bookingId,
+          image_url: publicUrl,
+          message: message || null,
+          customer_email: emailToUse,
+          car_details: carDetails
         });
         
-        if (sqlError) {
-          console.error("Error with SQL insert:", sqlError);
-          throw sqlError;
-        }
-        
-        console.log("Progress update stored using execute-sql function");
-      } catch (functionError) {
-        console.error("Error using execute-sql function, falling back to direct insert:", functionError);
-        
-        // Fallback to direct insert if the function fails
-        const { error: dbError } = await supabase
-          .from('progress_updates')
-          .insert({
-            booking_id: bookingId,
-            image_url: publicUrl,
-            message: message,
-            customer_email: emailToUse,
-            car_details: carDetails
-          });
-          
-        if (dbError) {
-          console.error("Database error:", dbError);
-          throw dbError;
-        }
-        
-        console.log("Progress update stored in database using direct insert");
+      if (insertError) {
+        console.error("Database insert error:", insertError);
+        throw new Error(`Database error: ${insertError.message}`);
       }
-
-      // Notify customer
+      
+      console.log("Progress update successfully stored in database");
+      
+      // Try to send notification (but don't block on errors)
       try {
         const { error: notificationError } = await supabase.functions.invoke('notify-customer', {
           body: {
@@ -207,17 +152,19 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
         });
         
         if (notificationError) {
-          console.error("Error sending notification:", notificationError);
+          console.warn("Notification error:", notificationError);
           // Continue anyway since the upload was successful
+        } else {
+          console.log("Notification sent successfully");
         }
       } catch (notifyError) {
-        console.error("Notification service error:", notifyError);
+        console.warn("Notification service error:", notifyError);
         // Don't throw this error since upload was successful
       }
       
       toast({
         title: "Progress photo sent!",
-        description: "The customer has been notified about the update.",
+        description: "The progress update has been stored successfully.",
         variant: "default",
       });
       
@@ -320,7 +267,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
         <Alert className="bg-luxury-900/50 border border-amber-500/20">
           <Send className="h-4 w-4 text-amber-500" />
           <AlertDescription className="text-sm text-white/70">
-            This update will be sent privately to the customer via email.
+            This update will be sent to the customer and stored in your database.
           </AlertDescription>
         </Alert>
         
