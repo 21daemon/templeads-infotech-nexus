@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Car, MapPin, Phone, User, Clock, DollarSign, Camera } from 'lucide-react';
+import { Calendar, Car, MapPin, Phone, User, Clock, DollarSign, Camera, Mail, AlertTriangle } from 'lucide-react';
 import ProgressPhotoUploader from './ProgressPhotoUploader';
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Booking {
   id: string;
@@ -22,6 +24,7 @@ interface Booking {
   };
   phone?: string;
   address?: string;
+  email?: string;
 }
 
 interface ManageBookingDetailsProps {
@@ -34,20 +37,22 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
   onStatusUpdate
 }) => {
   const [showPhotoUploader, setShowPhotoUploader] = useState(false);
-
+  const [manualEmail, setManualEmail] = useState('');
+  
   // Function to safely get customer email even if profiles object structure varies
   const getCustomerEmail = () => {
     if (booking.profiles && booking.profiles.email) {
       return booking.profiles.email;
     }
     // Fallback - check if there's an email property directly on booking
-    // @ts-ignore - we're doing this safely with optional chaining
-    if (booking?.email) {
-      // @ts-ignore
+    if (booking.email) {
       return booking.email;
     }
-    return '';
+    return manualEmail || '';
   };
+
+  const customerEmail = getCustomerEmail();
+  const hasEmail = !!customerEmail;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -84,7 +89,6 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
   };
 
   const carDetails = `${booking.car_make} ${booking.car_model}`;
-  const customerEmail = getCustomerEmail();
 
   return (
     <Card className="bg-luxury-800/50 backdrop-blur-sm border border-white/10">
@@ -147,12 +151,11 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
               </div>
             )}
 
-            {customerEmail && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-white/70">Email:</span>
-                <span className="font-medium text-white">{customerEmail}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-amber-500" />
+              <span className="text-sm text-white/70">Email:</span>
+              <span className="font-medium text-white">{customerEmail || 'N/A'}</span>
+            </div>
           </div>
         </div>
         
@@ -208,10 +211,31 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
               </Button>
             </div>
             
+            {!hasEmail && (
+              <Alert className="mb-4 bg-amber-500/10 border-amber-500 text-amber-400">
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                <AlertDescription>
+                  Customer email is missing. Please enter an email address to send progress updates.
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {!hasEmail && (
+              <div className="mb-4">
+                <Input
+                  type="email"
+                  placeholder="Enter customer email"
+                  value={manualEmail}
+                  onChange={(e) => setManualEmail(e.target.value)}
+                  className="border-amber-500/50 bg-transparent text-white"
+                />
+              </div>
+            )}
+            
             {showPhotoUploader && (
               <ProgressPhotoUploader 
                 bookingId={booking.id} 
-                customerEmail={customerEmail} 
+                customerEmail={customerEmail || manualEmail} 
                 carDetails={carDetails}
               />
             )}
