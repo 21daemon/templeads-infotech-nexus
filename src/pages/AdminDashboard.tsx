@@ -25,22 +25,44 @@ export function AdminDashboard() {
     try {
       setIsLoading(true);
       
-      // Use a more complete query that joins with profiles
+      // Modify the query to avoid using the join that's causing the error
       const { data, error } = await supabase
         .from('bookings')
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            email
-          )
-        `)
+        .select('*')
         .order('date', { ascending: false });
         
       if (error) throw error;
       
-      console.log("Fetched bookings with profiles:", data);
-      setBookings(data || []);
+      // If we successfully get bookings, now let's fetch the related profiles in a separate query
+      if (data && data.length > 0) {
+        // Get unique user IDs from bookings
+        const userIds = [...new Set(data.map(booking => booking.user_id))];
+        
+        // Fetch profiles for those users
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds);
+          
+        if (profilesError) console.error("Error fetching profiles:", profilesError);
+        
+        // Create a map of user_id to profile data for quick lookup
+        const profilesMap = (profilesData || []).reduce((map, profile) => {
+          map[profile.id] = profile;
+          return map;
+        }, {});
+        
+        // Attach profile data to each booking
+        const bookingsWithProfiles = data.map(booking => ({
+          ...booking,
+          profiles: profilesMap[booking.user_id] || null
+        }));
+        
+        console.log("Fetched bookings with profiles:", bookingsWithProfiles);
+        setBookings(bookingsWithProfiles);
+      } else {
+        setBookings(data || []);
+      }
       
     } catch (error) {
       console.error("Error fetching bookings:", error);
