@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { Camera, Upload, X, Send } from 'lucide-react';
+import { Camera, Upload, X, Send, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ProgressPhotoUploaderProps {
@@ -23,6 +23,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const [manualEmail, setManualEmail] = useState<string>('');
   const { toast } = useToast();
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,11 +98,12 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
       return;
     }
 
-    // Check if customer email is available
-    if (!customerEmail) {
+    // Check if customer email is available - use either provided email or manual entry
+    const emailToUse = customerEmail || manualEmail;
+    if (!emailToUse) {
       toast({
         title: "Customer email missing",
-        description: "Cannot send progress update without customer email",
+        description: "Please enter a customer email address",
         variant: "destructive",
       });
       return;
@@ -140,7 +142,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
         booking_id: bookingId,
         image_url: publicUrl,
         message: message,
-        customer_email: customerEmail,
+        customer_email: emailToUse,
         car_details: carDetails
       });
       
@@ -158,7 +160,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
               booking_id: bookingId,
               image_url: publicUrl,
               message: message,
-              customer_email: customerEmail,
+              customer_email: emailToUse,
               car_details: carDetails
             }
           }
@@ -180,7 +182,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
             booking_id: bookingId,
             image_url: publicUrl,
             message: message,
-            customer_email: customerEmail,
+            customer_email: emailToUse,
             car_details: carDetails
           });
           
@@ -196,7 +198,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
       try {
         const { error: notificationError } = await supabase.functions.invoke('notify-customer', {
           body: {
-            customerEmail,
+            customerEmail: emailToUse,
             bookingId,
             message: message || 'Your vehicle service is in progress. Here\'s an update!',
             imageUrl: publicUrl,
@@ -221,6 +223,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
       
       clearImage();
       setMessage('');
+      setManualEmail('');
 
     } catch (error: any) {
       console.error("Error uploading progress photo:", error);
@@ -234,11 +237,38 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
     }
   };
 
+  // Check if we need to show the manual email input field
+  const showManualEmailInput = !customerEmail;
+
   return (
     <div className="space-y-4 p-4 border border-amber-500/20 rounded-lg bg-luxury-800/20 backdrop-blur-sm">
       <h3 className="text-lg font-medium text-amber-400">Send Progress Update</h3>
       
+      {showManualEmailInput && (
+        <Alert className="bg-luxury-900/50 border border-amber-400/50">
+          <AlertTriangle className="h-4 w-4 text-amber-400" />
+          <AlertDescription className="text-amber-300">
+            Customer email is missing. Please enter an email address to send the update to.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <form onSubmit={handleSubmit} className="space-y-4">
+        {showManualEmailInput && (
+          <div className="space-y-2">
+            <Label htmlFor="customer-email" className="text-amber-300">Customer Email (required)</Label>
+            <Input
+              id="customer-email"
+              type="email"
+              placeholder="customer@example.com"
+              value={manualEmail}
+              onChange={(e) => setManualEmail(e.target.value)}
+              className="bg-luxury-900/50 border-amber-500/20"
+              required
+            />
+          </div>
+        )}
+        
         <div className="space-y-2">
           <Label htmlFor="message">Message to Customer (Optional)</Label>
           <Input
@@ -297,7 +327,7 @@ const ProgressPhotoUploader: React.FC<ProgressPhotoUploaderProps> = ({
         <Button 
           type="submit" 
           className="w-full bg-amber-500 hover:bg-amber-600 text-black" 
-          disabled={!selectedImage || isUploading}
+          disabled={!selectedImage || isUploading || (showManualEmailInput && !manualEmail)}
         >
           {isUploading ? (
             <>Sending Update...</>

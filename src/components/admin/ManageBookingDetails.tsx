@@ -35,6 +35,20 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
 }) => {
   const [showPhotoUploader, setShowPhotoUploader] = useState(false);
 
+  // Function to safely get customer email even if profiles object structure varies
+  const getCustomerEmail = () => {
+    if (booking.profiles && booking.profiles.email) {
+      return booking.profiles.email;
+    }
+    // Fallback - check if there's an email property directly on booking
+    // @ts-ignore - we're doing this safely with optional chaining
+    if (booking?.email) {
+      // @ts-ignore
+      return booking.email;
+    }
+    return '';
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -70,6 +84,7 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
   };
 
   const carDetails = `${booking.car_make} ${booking.car_model}`;
+  const customerEmail = getCustomerEmail();
 
   return (
     <Card className="bg-luxury-800/50 backdrop-blur-sm border border-white/10">
@@ -131,6 +146,13 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
                 <span className="font-medium text-white">{booking.address}</span>
               </div>
             )}
+
+            {customerEmail && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-white/70">Email:</span>
+                <span className="font-medium text-white">{customerEmail}</span>
+              </div>
+            )}
           </div>
         </div>
         
@@ -189,7 +211,7 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
             {showPhotoUploader && (
               <ProgressPhotoUploader 
                 bookingId={booking.id} 
-                customerEmail={booking.profiles?.email || ''} 
+                customerEmail={customerEmail} 
                 carDetails={carDetails}
               />
             )}
