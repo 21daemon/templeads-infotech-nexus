@@ -109,7 +109,8 @@ export function AdminDashboard() {
         <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
         
         <div className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Changed from grid-cols-1 lg:grid-cols-2 to full width */}
+          <div className="w-full">
             <DataAnalytics 
               bookings={bookings} 
               feedback={feedback} 
