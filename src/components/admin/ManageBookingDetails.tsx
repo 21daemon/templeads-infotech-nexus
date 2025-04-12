@@ -30,11 +30,13 @@ interface Booking {
 interface ManageBookingDetailsProps {
   booking: Booking;
   onStatusUpdate: (bookingId: string, newStatus: string) => Promise<void>;
+  onDeleteBooking: () => void; // Added this missing property
 }
 
 const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
   booking,
-  onStatusUpdate
+  onStatusUpdate,
+  onDeleteBooking // Add the prop here
 }) => {
   const [showPhotoUploader, setShowPhotoUploader] = useState(false);
   const [manualEmail, setManualEmail] = useState('');
@@ -91,10 +93,10 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
   const carDetails = `${booking.car_make} ${booking.car_model}`;
 
   return (
-    <Card className="bg-luxury-800/50 backdrop-blur-sm border border-white/10">
+    <Card className="bg-black/5 backdrop-blur-sm border border-white/10 dark:bg-white/5">
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle className="text-xl text-amber-400">Booking Details</CardTitle>
+          <CardTitle className="text-xl text-black dark:text-white">Booking Details</CardTitle>
           <Badge 
             className={`${getStatusColor(booking.status)} text-white`}
           >
@@ -106,65 +108,65 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-amber-500" />
-              <span className="text-sm text-white/70">Customer:</span>
-              <span className="font-medium text-white">{booking.profiles?.full_name}</span>
+              <User className="h-4 w-4 text-black dark:text-white" />
+              <span className="text-sm text-black/70 dark:text-white/70">Customer:</span>
+              <span className="font-medium text-black dark:text-white">{booking.profiles?.full_name}</span>
             </div>
             
             <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-amber-500" />
-              <span className="text-sm text-white/70">Phone:</span>
-              <span className="font-medium text-white">{booking.phone || 'N/A'}</span>
+              <Phone className="h-4 w-4 text-black dark:text-white" />
+              <span className="text-sm text-black/70 dark:text-white/70">Phone:</span>
+              <span className="font-medium text-black dark:text-white">{booking.phone || 'N/A'}</span>
             </div>
             
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-amber-500" />
-              <span className="text-sm text-white/70">Date:</span>
-              <span className="font-medium text-white">{formatDate(booking.date)}</span>
+              <Calendar className="h-4 w-4 text-black dark:text-white" />
+              <span className="text-sm text-black/70 dark:text-white/70">Date:</span>
+              <span className="font-medium text-black dark:text-white">{formatDate(booking.date)}</span>
             </div>
             
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-500" />
-              <span className="text-sm text-white/70">Time:</span>
-              <span className="font-medium text-white">{booking.time_slot}</span>
+              <Clock className="h-4 w-4 text-black dark:text-white" />
+              <span className="text-sm text-black/70 dark:text-white/70">Time:</span>
+              <span className="font-medium text-black dark:text-white">{booking.time_slot}</span>
             </div>
           </div>
           
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Car className="h-4 w-4 text-amber-500" />
-              <span className="text-sm text-white/70">Vehicle:</span>
-              <span className="font-medium text-white">{carDetails}</span>
+              <Car className="h-4 w-4 text-black dark:text-white" />
+              <span className="text-sm text-black/70 dark:text-white/70">Vehicle:</span>
+              <span className="font-medium text-black dark:text-white">{carDetails}</span>
             </div>
             
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-amber-500" />
-              <span className="text-sm text-white/70">Service:</span>
-              <span className="font-medium text-white">{booking.service_name} - {booking.price}</span>
+              <DollarSign className="h-4 w-4 text-black dark:text-white" />
+              <span className="text-sm text-black/70 dark:text-white/70">Service:</span>
+              <span className="font-medium text-black dark:text-white">{booking.service_name} - {booking.price}</span>
             </div>
             
             {booking.address && (
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-amber-500" />
-                <span className="text-sm text-white/70">Address:</span>
-                <span className="font-medium text-white">{booking.address}</span>
+                <MapPin className="h-4 w-4 text-black dark:text-white" />
+                <span className="text-sm text-black/70 dark:text-white/70">Address:</span>
+                <span className="font-medium text-black dark:text-white">{booking.address}</span>
               </div>
             )}
 
             <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-amber-500" />
-              <span className="text-sm text-white/70">Email:</span>
-              <span className="font-medium text-white">{customerEmail || 'N/A'}</span>
+              <Mail className="h-4 w-4 text-black dark:text-white" />
+              <span className="text-sm text-black/70 dark:text-white/70">Email:</span>
+              <span className="font-medium text-black dark:text-white">{customerEmail || 'N/A'}</span>
             </div>
           </div>
         </div>
         
-        <div className="pt-4 border-t border-white/10">
+        <div className="pt-4 border-t border-black/10 dark:border-white/10">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <Button 
               size="sm" 
               variant="outline"
-              className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10"
+              className="border-blue-500/50 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10"
               onClick={() => handleStatusChange('confirmed')}
             >
               Confirm
@@ -172,7 +174,7 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
             <Button 
               size="sm" 
               variant="outline"
-              className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
+              className="border-black/50 text-black dark:border-white/50 dark:text-white hover:bg-black/10 dark:hover:bg-white/10"
               onClick={() => handleStatusChange('in_progress')}
             >
               In Progress
@@ -180,7 +182,7 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
             <Button 
               size="sm" 
               variant="outline"
-              className="border-green-500/50 text-green-400 hover:bg-green-500/10"
+              className="border-green-500/50 text-green-600 dark:text-green-400 hover:bg-green-500/10"
               onClick={() => handleStatusChange('completed')}
             >
               Complete
@@ -188,10 +190,10 @@ const ManageBookingDetails: React.FC<ManageBookingDetailsProps> = ({
             <Button 
               size="sm" 
               variant="outline"
-              className="border-red-500/50 text-red-400 hover:bg-red-500/10"
-              onClick={() => handleStatusChange('cancelled')}
+              className="border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-500/10"
+              onClick={onDeleteBooking}
             >
-              Cancel
+              Delete
             </Button>
           </div>
         </div>
