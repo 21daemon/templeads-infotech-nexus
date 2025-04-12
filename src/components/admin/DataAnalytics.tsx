@@ -1,3 +1,4 @@
+
 import React, { useMemo } from "react";
 import {
   BarChart,
@@ -36,6 +37,7 @@ import {
   Smile,
   ThumbsUp,
   ThumbsDown,
+  PieChart as PieChartIcon, // Import PieChart icon from lucide-react
 } from "lucide-react";
 
 // Types for our analytics data
@@ -121,22 +123,23 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
       .slice(0, 5); // Top 5 car makes
   }, [bookings]);
 
-  // FIX HERE: Process booking data by time slot with proper type checking
+  // Fix for time slot sorting with proper type handling
   const bookingsByTimeSlot = useMemo(() => {
     const timeSlotCount: Record<string, number> = {};
     
     bookings.forEach(booking => {
       const timeSlot = booking.time_slot;
-      timeSlotCount[timeSlot] = (timeSlotCount[timeSlot] || 0) + 1;
+      if (timeSlot) { // Make sure timeSlot exists
+        timeSlotCount[timeSlot] = (timeSlotCount[timeSlot] || 0) + 1;
+      }
     });
     
     return Object.entries(timeSlotCount)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => {
-        // Sort time slots chronologically
-        // Fixed the type issue by making sure we have strings before calling split
-        const timeA = name ? name.split(' - ')[0] : '';
-        const timeB = name ? name.split(' - ')[0] : '';
+        // Properly type and handle the name values
+        const timeA = typeof a.name === 'string' ? a.name.split(' - ')[0] : '';
+        const timeB = typeof b.name === 'string' ? b.name.split(' - ')[0] : '';
         return timeA.localeCompare(timeB);
       });
   }, [bookings]);
@@ -337,7 +340,7 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <ChartPie className="h-4 w-4" />
+              <PieChartIcon className="h-4 w-4" />
               Unique Services
             </CardTitle>
           </CardHeader>
@@ -391,7 +394,7 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <ChartPie className="h-5 w-5" />
+                  <PieChartIcon className="h-5 w-5" />
                   Bookings by Service
                 </CardTitle>
                 <CardDescription>Distribution of bookings by service type</CardDescription>
