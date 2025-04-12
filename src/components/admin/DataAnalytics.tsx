@@ -1,4 +1,3 @@
-
 import React, { useMemo } from "react";
 import {
   BarChart,
@@ -30,7 +29,6 @@ import { format, startOfMonth, subMonths, differenceInDays, isAfter, subDays, pa
 import { 
   Calendar, 
   ChartBar, 
-  ChartPie, 
   Clock, 
   DollarSign, 
   MessageSquare, 
@@ -123,7 +121,7 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
       .slice(0, 5); // Top 5 car makes
   }, [bookings]);
 
-  // NEW: Process booking data by time slot
+  // FIX HERE: Process booking data by time slot with proper type checking
   const bookingsByTimeSlot = useMemo(() => {
     const timeSlotCount: Record<string, number> = {};
     
@@ -136,13 +134,14 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => {
         // Sort time slots chronologically
-        const timeA = name.split(' - ')[0];
-        const timeB = name.split(' - ')[0];
+        // Fixed the type issue by making sure we have strings before calling split
+        const timeA = name ? name.split(' - ')[0] : '';
+        const timeB = name ? name.split(' - ')[0] : '';
         return timeA.localeCompare(timeB);
       });
   }, [bookings]);
 
-  // NEW: Calculate revenue by month
+  // Calculate revenue by month
   const revenueByMonth = useMemo(() => {
     const monthlyRevenue: Record<string, number> = {};
     const now = new Date();
@@ -173,7 +172,7 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
     }));
   }, [bookings]);
 
-  // NEW: Calculate recent booking trend (last 14 days)
+  // Calculate recent booking trend (last 14 days)
   const recentBookingTrend = useMemo(() => {
     const dailyBookings: Record<string, number> = {};
     const now = new Date();
@@ -222,7 +221,7 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
     }));
   }, [feedback]);
 
-  // NEW: Feedback sentiment analysis
+  // Feedback sentiment analysis
   const feedbackSentiment = useMemo(() => {
     const sentimentData = [
       { name: 'Positive', value: 0 },
@@ -243,7 +242,7 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
     return sentimentData;
   }, [feedback]);
 
-  // NEW: Feedback trends over time
+  // Feedback trends over time
   const feedbackTrendsByMonth = useMemo(() => {
     const monthlyData: Record<string, { count: number, total: number }> = {};
     const now = new Date();
@@ -275,7 +274,7 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
     }));
   }, [feedback]);
 
-  // NEW: Feedback satisfaction categories
+  // Feedback satisfaction categories
   const feedbackSatisfactionTypes = useMemo(() => {
     const satisfactionCount: Record<string, number> = {
       "Excellent": 0,
@@ -469,7 +468,6 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
               </CardContent>
             </Card>
 
-            {/* NEW: Popular Time Slots */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -492,7 +490,6 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
               </CardContent>
             </Card>
 
-            {/* NEW: Revenue by Month */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -522,7 +519,6 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
               </CardContent>
             </Card>
 
-            {/* NEW: Recent Booking Trend */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -576,7 +572,6 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
               </CardContent>
             </Card>
 
-            {/* NEW: Sentiment Analysis */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -609,7 +604,6 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
               </CardContent>
             </Card>
 
-            {/* NEW: Feedback Rating Trend */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -638,7 +632,6 @@ const DataAnalytics: React.FC<DataAnalyticsProps> = ({ bookings, feedback }) => 
               </CardContent>
             </Card>
 
-            {/* NEW: Satisfaction Categories */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
