@@ -19,24 +19,24 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       )}
     >
       {!isUser && (
-        <Avatar className="h-8 w-8 bg-primary text-primary-foreground">
+        <Avatar className="h-8 w-8 bg-black dark:bg-white text-white dark:text-black border border-transparent">
           <span className="text-xs">AX</span>
         </Avatar>
       )}
       
       <div
         className={cn(
-          "rounded-lg px-4 py-2 max-w-[80%]",
+          "rounded-lg px-4 py-2 max-w-[80%] shadow-sm",
           isUser
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted"
+            ? "bg-black text-white dark:bg-white dark:text-black"
+            : "bg-gray-100 text-black dark:bg-gray-800 dark:text-white"
         )}
       >
         <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
       </div>
       
       {isUser && (
-        <Avatar className="h-8 w-8 bg-secondary">
+        <Avatar className="h-8 w-8 bg-gray-200 dark:bg-gray-700 text-black dark:text-white border border-transparent">
           <span className="text-xs">You</span>
         </Avatar>
       )}

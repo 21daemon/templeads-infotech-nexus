@@ -37,21 +37,21 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   }, [message]);
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-end gap-2 p-2 border-t">
+    <form onSubmit={handleSubmit} className="flex items-end gap-2 p-2 w-full">
       <Textarea
         ref={textareaRef}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Ask about our services..."
-        className="min-h-[40px] max-h-[120px] resize-none"
+        className="min-h-[40px] max-h-[120px] resize-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-black text-black dark:text-white"
         disabled={isLoading}
       />
       <Button 
         type="submit" 
         size="icon" 
         disabled={isLoading || !message.trim()}
-        className="h-10 w-10 shrink-0"
+        className="h-10 w-10 shrink-0 bg-black dark:bg-white text-white dark:text-black hover:bg-black/80 dark:hover:bg-white/80"
       >
         <Send className="h-5 w-5" />
       </Button>

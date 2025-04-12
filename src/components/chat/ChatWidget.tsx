@@ -22,7 +22,7 @@ const ChatWidget: React.FC = () => {
       {/* Chat toggle button */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 h-14 w-14 z-50"
+        className="fixed bottom-4 right-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 h-14 w-14 z-50 bg-black dark:bg-white text-white dark:text-black"
         size="icon"
       >
         <MessageCircle className="h-6 w-6" />
@@ -30,9 +30,9 @@ const ChatWidget: React.FC = () => {
 
       {/* Chat window */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent className="sm:max-w-[400px] p-0 flex flex-col h-full">
-          <SheetHeader className="p-4 border-b">
-            <SheetTitle className="flex justify-between items-center">
+        <SheetContent className="sm:max-w-[400px] p-0 flex flex-col h-full border-l border-white/10 dark:border-black/10 bg-white dark:bg-black">
+          <SheetHeader className="p-4 border-b border-gray-200 dark:border-gray-800">
+            <SheetTitle className="flex justify-between items-center text-black dark:text-white">
               <span>Autox24 Assistant</span>
               <Button 
                 variant="ghost" 
@@ -40,6 +40,7 @@ const ChatWidget: React.FC = () => {
                 onClick={() => {
                   clearMessages();
                 }}
+                className="hover:bg-gray-100 dark:hover:bg-gray-900"
               >
                 New Chat
               </Button>
@@ -47,12 +48,12 @@ const ChatWidget: React.FC = () => {
           </SheetHeader>
           
           {/* Messages area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-950">
             {messages.map((message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
             {isLoading && (
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground animate-pulse">
+              <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 animate-pulse">
                 <span>Assistant is typing</span>
                 <span className="dotFlashing"></span>
               </div>
@@ -61,7 +62,9 @@ const ChatWidget: React.FC = () => {
           </div>
           
           {/* Input area */}
-          <ChatInput onSendMessage={sendMessage} isLoading={isLoading} />
+          <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
+            <ChatInput onSendMessage={sendMessage} isLoading={isLoading} />
+          </div>
         </SheetContent>
       </Sheet>
     </>
