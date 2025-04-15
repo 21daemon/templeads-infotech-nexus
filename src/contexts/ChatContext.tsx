@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,7 +30,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setMessages([
         {
           id: uuidv4(),
-          content: "Hi there! I'm your Autox24 virtual assistant. How can I help you with your car detailing needs today?",
+          content: "Hi there! I'm your Autogenics virtual assistant. How can I help you with your car detailing needs today?",
           role: "assistant",
           createdAt: new Date(),
         },
@@ -94,7 +93,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setMessages([
       {
         id: uuidv4(),
-        content: "Hi there! I'm your Autox24 virtual assistant. How can I help you with your car detailing needs today?",
+        content: "Hi there! I'm your Autogenics virtual assistant. How can I help you with your car detailing needs today?",
         role: "assistant",
         createdAt: new Date(),
       },
