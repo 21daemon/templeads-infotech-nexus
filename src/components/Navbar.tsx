@@ -102,10 +102,10 @@ const Navbar = () => {
       return (
             <div
                   className={cn(
-                        "fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60",
-                        pathname === "/"
-                              ? "border-b border-transparent"
-                              : "border-b"
+                        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
+                        pathname === "/" 
+                              ? "bg-background/50 backdrop-blur-md supports-[backdrop-filter]:bg-background/30" 
+                              : "bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60 border-b"
                   )}
             >
                   <nav className="flex items-center justify-between mx-auto p-4 max-w-screen-xl">
@@ -120,44 +120,44 @@ const Navbar = () => {
                               </Link>
 
                               {/* Desktop menu */}
-                              <div className="hidden md:flex space-x-8">
+                              <div className="hidden md:flex space-x-4">
                                     {navItems.map((item) => (
-                                          <Link
+                                          <Button
                                                 key={item.name}
-                                                to={item.href}
+                                                variant={pathname === item.href ? "default" : "ghost"}
+                                                size="sm"
                                                 className={cn(
-                                                      "text-sm font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:rounded-full after:origin-left after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
+                                                      "transition-all",
                                                       pathname === item.href
-                                                            ? "text-primary after:bg-primary after:scale-x-100"
-                                                            : "text-muted-foreground hover:text-foreground after:bg-primary/60"
+                                                            ? ""
+                                                            : "hover:bg-background/80"
                                                 )}
+                                                asChild
                                           >
-                                                {item.name}
-                                          </Link>
+                                                <Link to={item.href}>
+                                                      {item.name}
+                                                </Link>
+                                          </Button>
                                     ))}
 
                                     {/* Show Admin link in desktop menu if user is admin */}
                                     {adminVisible && (
-                                          <Link
-                                                to="/admin"
-                                                className={cn(
-                                                      "text-sm font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:rounded-full after:origin-left after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
-                                                      pathname === "/admin"
-                                                            ? "text-primary after:bg-primary after:scale-x-100"
-                                                            : "text-muted-foreground hover:text-foreground after:bg-primary/60",
-                                                      "flex items-center"
-                                                )}
+                                          <Button
+                                                variant={pathname === "/admin" ? "default" : "ghost"}
+                                                size="sm"
+                                                className="relative"
+                                                asChild
                                           >
-                                                <span className="relative">
+                                                <Link to="/admin">
                                                       Admin
-                                                      <span className="absolute -top-1 -right-3 h-2 w-2 rounded-full bg-primary"></span>
-                                                </span>
-                                          </Link>
+                                                      <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-primary"></span>
+                                                </Link>
+                                          </Button>
                                     )}
                               </div>
                         </div>
 
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
                               <ModeToggle />
 
                               {user ? (
@@ -221,6 +221,7 @@ const Navbar = () => {
                                     <Button
                                           asChild
                                           size="sm"
+                                          variant="default"
                                           className="hover-lift"
                                     >
                                           <Link to="/auth">Sign In</Link>
@@ -230,13 +231,9 @@ const Navbar = () => {
                               <button
                                     type="button"
                                     className="md:hidden inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
-                                    onClick={() =>
-                                          setMobileMenuOpen(!mobileMenuOpen)
-                                    }
+                                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                               >
-                                    <span className="sr-only">
-                                          Open main menu
-                                    </span>
+                                    <span className="sr-only">Open main menu</span>
                                     {mobileMenuOpen ? (
                                           <X className="h-6 w-6" />
                                     ) : (
@@ -248,73 +245,69 @@ const Navbar = () => {
 
                   {/* Mobile menu */}
                   {mobileMenuOpen && (
-                        <div className="md:hidden px-4 pb-4 pt-2 border-t animate-fade-in">
-                              <div className="flex flex-col space-y-3">
+                        <div className="md:hidden px-4 pb-4 pt-2 border-t bg-background/95 backdrop-blur-lg">
+                              <div className="flex flex-col space-y-2">
                                     {navItems.map((item) => (
-                                          <Link
+                                          <Button
                                                 key={item.name}
-                                                to={item.href}
-                                                className={cn(
-                                                      "px-3 py-2 text-base font-medium rounded-md transition-colors",
-                                                      pathname === item.href
-                                                            ? "bg-primary/10 text-primary"
-                                                            : "hover:bg-muted"
-                                                )}
-                                                onClick={() =>
-                                                      setMobileMenuOpen(false)
-                                                }
+                                                variant={pathname === item.href ? "default" : "ghost"}
+                                                className="w-full justify-start"
+                                                asChild
                                           >
-                                                {item.name}
-                                          </Link>
+                                                <Link
+                                                      to={item.href}
+                                                      onClick={() => setMobileMenuOpen(false)}
+                                                >
+                                                      {item.name}
+                                                </Link>
+                                          </Button>
                                     ))}
 
                                     {/* Show Admin link in mobile menu if user is admin */}
                                     {adminVisible && (
-                                          <Link
-                                                to="/admin"
-                                                className={cn(
-                                                      "px-3 py-2 text-base font-medium rounded-md transition-colors flex items-center",
-                                                      pathname === "/admin"
-                                                            ? "bg-primary/10 text-primary"
-                                                            : "hover:bg-muted"
-                                                )}
-                                                onClick={() =>
-                                                      setMobileMenuOpen(false)
-                                                }
+                                          <Button
+                                                variant={pathname === "/admin" ? "default" : "ghost"}
+                                                className="w-full justify-start relative"
+                                                asChild
                                           >
-                                                <LayoutDashboard className="h-4 w-4 mr-2" />
-                                                <span>Admin Dashboard</span>
-                                                <span className="ml-2 h-2 w-2 rounded-full bg-primary"></span>
-                                          </Link>
+                                                <Link
+                                                      to="/admin"
+                                                      onClick={() => setMobileMenuOpen(false)}
+                                                >
+                                                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                                                      <span>Admin Dashboard</span>
+                                                      <span className="ml-2 h-2 w-2 rounded-full bg-primary"></span>
+                                                </Link>
+                                          </Button>
                                     )}
 
                                     {user && (
                                           <>
-                                                <Link
-                                                      to="/my-bookings"
-                                                      className="px-3 py-2 text-base font-medium rounded-md hover:bg-muted flex items-center"
-                                                      onClick={() =>
-                                                            setMobileMenuOpen(
-                                                                  false
-                                                            )
-                                                      }
+                                                <Button
+                                                      variant="ghost"
+                                                      className="w-full justify-start"
+                                                      asChild
                                                 >
-                                                      <User className="h-4 w-4 mr-2" />
-                                                      <span>My Bookings</span>
-                                                </Link>
+                                                      <Link
+                                                            to="/my-bookings"
+                                                            onClick={() => setMobileMenuOpen(false)}
+                                                      >
+                                                            <User className="h-4 w-4 mr-2" />
+                                                            <span>My Bookings</span>
+                                                      </Link>
+                                                </Button>
 
-                                                <button
+                                                <Button
+                                                      variant="ghost"
+                                                      className="w-full justify-start text-destructive"
                                                       onClick={() => {
                                                             handleSignOut();
-                                                            setMobileMenuOpen(
-                                                                  false
-                                                            );
+                                                            setMobileMenuOpen(false);
                                                       }}
-                                                      className="px-3 py-2 text-base font-medium rounded-md text-left hover:bg-muted flex items-center text-destructive"
                                                 >
                                                       <LogOut className="h-4 w-4 mr-2" />
                                                       <span>Log out</span>
-                                                </button>
+                                                </Button>
                                           </>
                                     )}
                               </div>
