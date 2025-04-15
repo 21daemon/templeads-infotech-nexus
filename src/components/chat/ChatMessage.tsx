@@ -1,7 +1,8 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Bot, User } from "lucide-react";
 import type { ChatMessage as ChatMessageType } from "@/contexts/ChatContext";
 
 interface ChatMessageProps {
@@ -19,8 +20,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       )}
     >
       {!isUser && (
-        <Avatar className="h-8 w-8 bg-black dark:bg-white text-white dark:text-black border border-transparent">
-          <span className="text-xs">AX</span>
+        <Avatar className="h-8 w-8 bg-gradient-to-br from-primary/80 to-primary border-2 border-primary/20">
+          <AvatarFallback className="bg-gradient-to-br from-primary/80 to-primary text-background">
+            <Bot className="h-4 w-4" />
+          </AvatarFallback>
         </Avatar>
       )}
       
@@ -36,8 +39,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       </div>
       
       {isUser && (
-        <Avatar className="h-8 w-8 bg-gray-200 dark:bg-gray-700 text-black dark:text-white border border-transparent">
-          <span className="text-xs">You</span>
+        <Avatar className="h-8 w-8 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 border-2 border-gray-200 dark:border-gray-600">
+          <AvatarFallback className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+            <User className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+          </AvatarFallback>
         </Avatar>
       )}
     </div>
