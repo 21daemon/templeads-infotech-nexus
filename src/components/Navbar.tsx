@@ -115,7 +115,7 @@ const Navbar = () => {
                                     className="flex-shrink-0 flex items-center mr-8"
                               >
                                     <span className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
-                                          CarDetailing
+                                          Autogenics
                                     </span>
                               </Link>
 

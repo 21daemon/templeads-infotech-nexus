@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -48,7 +47,7 @@ const Hero: React.FC = () => {
                   <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
                         <div className="flex justify-center items-center gap-2 mb-6">
                             <span className="inline-block px-4 py-1.5 text-xs font-medium uppercase tracking-wide bg-white/10 text-white rounded-full backdrop-blur-md animate-fade-in">
-                                  Premium Car Detailing
+                                  Premium Automotive Transformation
                             </span>
                             <span className="inline-flex items-center px-3 py-1 text-xs bg-white/10 text-white rounded-full backdrop-blur-md animate-fade-in animation-delay-200">
                                 <Star className="h-3.5 w-3.5 mr-1 text-amber-400" /> 5.0 Rated Service
@@ -56,13 +55,11 @@ const Hero: React.FC = () => {
                         </div>
 
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 animate-slide-up">
-                              Exceptional Car Care for the <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">Discerning Driver</span>
+                              Advanced Automotive <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">Detailing Solutions</span>
                         </h1>
 
                         <p className="text-base md:text-lg text-white/85 mb-8 max-w-2xl mx-auto animate-slide-up animation-delay-200">
-                              Meticulous attention to detail. Premium products.
-                              Expert technicians. Experience car care that
-                              transcends the ordinary.
+                              Precision engineering meets automotive care. Autogenics delivers cutting-edge detailing that transforms your vehicle.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up animation-delay-300">

@@ -18,15 +18,13 @@ const Footer: React.FC = () => {
                                           to="/"
                                           className="text-2xl font-bold tracking-tight"
                                     >
-                                          <span>Clean</span>
+                                          <span>Auto</span>
                                           <span className="text-primary dark:text-primary-foreground">
-                                                Haven
+                                                Genics
                                           </span>
                                     </Link>
                                     <p className="mt-3 text-sm text-muted-foreground">
-                                          Premium car detailing services that
-                                          deliver exceptional results every
-                                          time.
+                                          Premium automotive detailing and transformation services that deliver exceptional results every time.
                                     </p>
                                     <div className="flex space-x-4 mt-6">
                                           <a
@@ -59,7 +57,6 @@ const Footer: React.FC = () => {
                                     </div>
                               </div>
 
-                              {/* Links */}
                               <div>
                                     <h3 className="text-sm font-medium">
                                           Services
@@ -175,7 +172,7 @@ const Footer: React.FC = () => {
 
                         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center">
                               <p className="text-sm text-muted-foreground">
-                                    &copy; {new Date().getFullYear()} Autox24.
+                                    &copy; {new Date().getFullYear()} Autogenics.
                                     All rights reserved.
                               </p>
                               <Button
